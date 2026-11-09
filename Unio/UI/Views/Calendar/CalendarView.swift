@@ -59,7 +59,7 @@ struct CalendarView: View {
                 checkPendingNotices()
             }
             .onAppear {
-                inizializeData()
+                initializeData()
                 checkPendingNotificationTap()
                 
                 focusCurrentDay()
@@ -159,14 +159,14 @@ struct CalendarView: View {
                 .accessibilityElement(children: .combine)
             case .serverUnreachable:
                 ContentUnavailableView {
-                    Label("Server non raggiungibile", systemImage: AppState.serveroffline.icon)
+                    Label("Server non raggiungibile", systemImage: AppState.serverOffline.icon)
                 } description: {
                     Text("Non è possibile raggiungere il server. Riprova più tardi.")
                 }
                 .accessibilityElement(children: .combine)
             case .univrOffline:
                 ContentUnavailableView {
-                    Label("Università non raggiungibile", systemImage: AppState.unioffline.icon)
+                    Label("Università non raggiungibile", systemImage: AppState.uniOffline.icon)
                 } description: {
                     Text("Questo corso non è disponibile finché i server dell'università non tornano online. Riprova più tardi.")
                 }
@@ -247,12 +247,12 @@ struct CalendarView: View {
                     Image(systemName: AppState.offline.icon)
                         .symbolEffect(.appear.up.byLayer, isActive: !viewModel.isOffline)
                         .foregroundStyle(AppState.offline.color)
-                    Image(systemName: AppState.serveroffline.icon)
+                    Image(systemName: AppState.serverOffline.icon)
                         .symbolEffect(.appear.up.byLayer, isActive: !viewModel.isServerUnreachable)
-                        .foregroundStyle(AppState.serveroffline.color)
-                    Image(systemName: AppState.unioffline.icon)
+                        .foregroundStyle(AppState.serverOffline.color)
+                    Image(systemName: AppState.uniOffline.icon)
                         .symbolEffect(.appear.up.byLayer, isActive: !viewModel.isUniVROffline)
-                        .foregroundStyle(AppState.unioffline.color)
+                        .foregroundStyle(AppState.uniOffline.color)
                 }
                 .font(.system(size: 12, weight: .bold))
             }
@@ -334,7 +334,7 @@ struct CalendarView: View {
         }
         .allowsHitTesting(!isRetrying)
         .buttonStyle(.borderedProminent)
-        .tint(serverDown ? AppState.serveroffline.color : AppState.unioffline.color)
+        .tint(serverDown ? AppState.serverOffline.color : AppState.uniOffline.color)
     }
     
     // MARK: - Logic Methods
@@ -365,7 +365,7 @@ struct CalendarView: View {
         sheetRouter.routeToSettings()
     }
     
-    private func inizializeData() {
+    private func initializeData() {
         viewModel.generateAcademicYearDays(for: settings.selectedYear)
         updateDate()
         sheetRouter.tempSettings.sync(with: settings)

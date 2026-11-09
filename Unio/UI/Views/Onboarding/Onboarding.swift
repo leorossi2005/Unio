@@ -100,7 +100,7 @@ struct Onboarding: View {
             let isUniVROffline = !isOffline && !isUnreachable && ServerStatusCenter.shared.isUniVROffline
             let isRetrying = isUniVROffline ? ServerStatusCenter.shared.isUniVRRetrying : ServerStatusCenter.shared.isRetrying
             let isWarningVisible = isOffline || isUnreachable || isUniVROffline
-            let tint: Color = isOffline ? AppState.offline.color : (isUniVROffline ? AppState.unioffline.color : AppState.serveroffline.color)
+            let tint: Color = isOffline ? AppState.offline.color : (isUniVROffline ? AppState.uniOffline.color : AppState.serverOffline.color)
             
             ZStack {
                 if isOffline {
@@ -108,9 +108,9 @@ struct Onboarding: View {
                 } else if isRetrying {
                     banner(text: isUniVROffline ? "Sto provando a contattare l'università..." : "Sto provando a contattare il server...", retrying: true)
                 } else if isUniVROffline {
-                    banner(icon: AppState.unioffline.icon, text: "I dati potrebbero non essere aggiornati", retry: true)
+                    banner(icon: AppState.uniOffline.icon, text: "I dati potrebbero non essere aggiornati", retry: true)
                 } else if isUnreachable {
-                    banner(icon: AppState.serveroffline.icon, text: "Server non raggiungibile", retry: true)
+                    banner(icon: AppState.serverOffline.icon, text: "Server non raggiungibile", retry: true)
                 }
             }
             .foregroundStyle(isUniVROffline ? .white : .black)

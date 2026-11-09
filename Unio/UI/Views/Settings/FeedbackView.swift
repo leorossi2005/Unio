@@ -119,10 +119,10 @@ struct FeedbackView: View {
                         Section {
                             Label(
                                 isOffline ? "Sei offline, non puoi inviare feedback." : "Server non raggiungibile, non puoi inviare feedback.",
-                                systemImage: isOffline ? AppState.offline.icon : AppState.serveroffline.icon
+                                systemImage: isOffline ? AppState.offline.icon : AppState.serverOffline.icon
                             )
                             .font(.caption2)
-                            .foregroundStyle(isOffline ? AppState.offline.color : AppState.serveroffline.color)
+                            .foregroundStyle(isOffline ? AppState.offline.color : AppState.serverOffline.color)
                             .labelStyle(.titleAndIcon)
                         }
                     }

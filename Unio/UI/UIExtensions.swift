@@ -44,15 +44,15 @@ extension NoticeLevel {
 import SwiftUI
 
 enum AppState {
-    case offline, serveroffline, unioffline
+    case offline, serverOffline, uniOffline
     
     var icon: String {
         switch self {
         case .offline:
             return "wifi.slash"
-        case .serveroffline:
+        case .serverOffline:
             return "network.slash"
-        case .unioffline:
+        case .uniOffline:
             return "building.columns"
         }
     }
@@ -61,9 +61,9 @@ enum AppState {
         switch self {
         case .offline:
             return .yellow
-        case .serveroffline:
+        case .serverOffline:
             return .orange
-        case .unioffline:
+        case .uniOffline:
             return .blue
         }
     }

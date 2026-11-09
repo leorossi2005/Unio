@@ -110,14 +110,14 @@ struct ClassroomAvailabilityView: View {
             .accessibilityElement(children: .combine)
         case .serverUnreachable:
             ContentUnavailableView {
-                Label("Server non raggiungibile", systemImage: AppState.serveroffline.icon)
+                Label("Server non raggiungibile", systemImage: AppState.serverOffline.icon)
             } description: {
                 Text("Non è possibile raggiungere il server. Riprova più tardi.")
             }
             .accessibilityElement(children: .combine)
         case .univrOffline:
             ContentUnavailableView {
-                Label("Università non raggiungibile", systemImage: AppState.unioffline.icon)
+                Label("Università non raggiungibile", systemImage: AppState.uniOffline.icon)
             } description: {
                 Text("La disponibilità delle aule non è consultabile finché i server dell'università non tornano raggiungibili.")
             }
