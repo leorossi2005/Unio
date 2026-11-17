@@ -53,7 +53,7 @@ public enum AppConstants: Sendable {
                         detailedDescription: .v10001Long
                     ),
                     WhatsNewFeature(
-                        icon: .system("calendar.and.person"),
+                        icon: .system("person.badge.clock"),
                         accentColor: .purple,
                         title: .v10002Title,
                         shortDescription: .v10002Short,

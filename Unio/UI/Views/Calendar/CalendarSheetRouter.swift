@@ -14,7 +14,7 @@ import CustomSheet
 @MainActor
 @Observable
 class CalendarSheetRouter {
-    let manager: GlobalSheetManager
+    var manager: GlobalSheetManager
     
     var selectedItem: CalendarItem? = nil
     var selectedRoom: Room? = nil

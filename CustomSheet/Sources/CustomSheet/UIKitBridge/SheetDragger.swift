@@ -9,6 +9,11 @@
 
 import SwiftUI
 import UIKit.UIGestureRecognizerSubclass
+import QuartzCore
+
+private final class DisplayLinkProxy: NSObject {
+    @objc func tick() {}
+}
 
 enum CustomSheetDraggingDirection {
     case up, down, none
@@ -16,12 +21,27 @@ enum CustomSheetDraggingDirection {
 
 final class SheetPanGestureRecognizer: UIPanGestureRecognizer {
     var onTouchBegan: ((UITouch) -> Void)?
+    var onTouchEndedWithoutBegin: (() -> Void)?
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
         if state == .possible, let touch = touches.first {
             onTouchBegan?(touch)
         }
         super.touchesBegan(touches, with: event)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesEnded(touches, with: event)
+        if state == .possible || state == .failed || state == .cancelled {
+            onTouchEndedWithoutBegin?()
+        }
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesCancelled(touches, with: event)
+        if state == .possible || state == .failed || state == .cancelled {
+            onTouchEndedWithoutBegin?()
+        }
     }
 }
 
@@ -79,9 +99,18 @@ struct SheetDragger: UIViewRepresentable {
         var canHandoffToSheet: Bool = false
         var startedAtLargeDetent: Bool = false
         var gesture: SheetPanGestureRecognizer?
+
+        nonisolated(unsafe) private var displayLink: CADisplayLink?
+        private let displayLinkProxy = DisplayLinkProxy()
+        private var isSheetPanActive: Bool = false
+        private var displayLinkStopToken: Int = 0
         
         init(parent: SheetDragger) {
             self.parent = parent
+        }
+
+        deinit {
+            displayLink?.invalidate()
         }
         
         func setupGesture(on window: UIWindow, targetedTo view: UIView) {
@@ -94,7 +123,17 @@ struct SheetDragger: UIViewRepresentable {
             gesture.cancelsTouchesInView = false
             
             gesture.onTouchBegan = { [weak self] touch in
-                self?.captureInitialScrollState(for: touch)
+                guard let self else { return }
+                self.captureInitialScrollState(for: touch)
+                if self.canHandoffToSheet {
+                    self.primeProMotionDisplayLink()
+                }
+            }
+            gesture.onTouchEndedWithoutBegin = { [weak self] in
+                guard let self else { return }
+                if !self.isSheetPanActive {
+                    self.stopProMotionDisplayLink(immediate: true)
+                }
             }
             
             window.addGestureRecognizer(gesture)
@@ -102,9 +141,52 @@ struct SheetDragger: UIViewRepresentable {
         }
         
         func removeGesture() {
+            stopProMotionDisplayLink(immediate: true)
             stopLockingScrollView()
             if let gesture = gesture {
                 window?.removeGestureRecognizer(gesture)
+            }
+        }
+
+        private func createProMotionDisplayLinkIfNeeded() {
+            displayLinkStopToken &+= 1
+            guard displayLink == nil else { return }
+            let link = CADisplayLink(target: displayLinkProxy, selector: #selector(DisplayLinkProxy.tick))
+            link.preferredFrameRateRange = CAFrameRateRange(minimum: 80, maximum: 120, preferred: 120)
+            link.add(to: .main, forMode: .common)
+            displayLink = link
+        }
+
+        private func primeProMotionDisplayLink() {
+            displayLinkStopToken &+= 1
+            createProMotionDisplayLinkIfNeeded()
+        }
+
+        private func startProMotionDisplayLink() {
+            displayLinkStopToken &+= 1
+            if !isSheetPanActive {
+                isSheetPanActive = true
+            }
+            createProMotionDisplayLinkIfNeeded()
+        }
+
+        private func stopProMotionDisplayLink(immediate: Bool = false) {
+            let wasActive = isSheetPanActive
+            isSheetPanActive = false
+            displayLinkStopToken &+= 1
+            if !immediate && wasActive && displayLink != nil {
+                // Keep the high-refresh hint active through the release spring so ProMotion stays at 120Hz.
+                let expectedToken = displayLinkStopToken
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) { [weak self] in
+                    guard let self,
+                          self.displayLinkStopToken == expectedToken,
+                          !self.isSheetPanActive else { return }
+                    self.displayLink?.invalidate()
+                    self.displayLink = nil
+                }
+            } else {
+                displayLink?.invalidate()
+                displayLink = nil
             }
         }
 
@@ -239,6 +321,7 @@ struct SheetDragger: UIViewRepresentable {
                     } else {
                         if translation.y <= 0 {
                             isDraggingSheet = false
+                            stopProMotionDisplayLink()
                             unlockScrollView(scrollView)
                             
                             parent.onDrag(0, parent.direction)
@@ -252,11 +335,20 @@ struct SheetDragger: UIViewRepresentable {
                 }
             }
             
-            if gesture.state == .changed {
+            if gesture.state == .began {
                 if trackedScrollView == nil || isDraggingSheet {
+                    startProMotionDisplayLink()
+                    if translation.y != 0 {
+                        parent.onDrag(translation.y, parent.direction)
+                    }
+                }
+            } else if gesture.state == .changed {
+                if trackedScrollView == nil || isDraggingSheet {
+                    startProMotionDisplayLink()
                     parent.onDrag(translation.y, parent.direction)
                 }
             } else if gesture.state == .ended || gesture.state == .cancelled {
+                stopProMotionDisplayLink()
                 parent.direction = .none
                 let wasDraggingSheet = (trackedScrollView == nil) || isDraggingSheet
                 

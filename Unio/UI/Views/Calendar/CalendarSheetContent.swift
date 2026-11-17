@@ -12,6 +12,8 @@ import UnioCore
 import CustomSheet
 
 struct CalendarSheetContent: View {
+    @Environment(\.sheetLargeHeight) private var sheetLargeHeight
+    @Environment(\.sheetMediumHeight) private var sheetMediumHeight
     @Environment(GlobalSheetManager.self) private var sheetManager
     
     @Bindable var router: CalendarSheetRouter
@@ -19,40 +21,48 @@ struct CalendarSheetContent: View {
     
     var body: some View {
         let windowHeight = UIApplication.shared.windowSize.height
-        let largeHeight = CustomSheetDetent.large.value
-        let mediumHeightHigh = CustomSheetDetent.medium.value * 1.05
-        let mediumHeightLow = CustomSheetDetent.medium.value * 0.95
-        let smallHeight = CustomSheetDetent.small.value
-        let fadeRange: CGFloat = windowHeight * 0.05
+        let largeHeight = sheetLargeHeight ?? sheetManager.value(for: .large)
+        let mediumHeight = sheetMediumHeight ?? sheetManager.value(for: .medium)
+        let mediumHeightHigh = mediumHeight * 1.05
+        let mediumHeightLow = mediumHeight * 0.95
+        let smallHeight = sheetManager.value(for: .small)
+        let fadeRange: CGFloat = max(windowHeight * 0.05, 1)
+        let hasLargeDetent = router.detents.contains(.large)
         
-        GeometryReader { proxy in
-            let currentHeight = proxy.size.height
+        ZStack(alignment: .top) {
+            FractionDatePickerContainer(selectedWeek: $selectedWeek)
+                .frame(height: smallHeight)
+                .modifier(SheetBandOpacityModifier(
+                    band: .small,
+                    sheetManager: sheetManager,
+                    hasLargeDetent: hasLargeDetent,
+                    smallHeight: smallHeight,
+                    mediumHeight: mediumHeight,
+                    mediumHeightLow: mediumHeightLow,
+                    mediumHeightHigh: mediumHeightHigh,
+                    largeHeight: largeHeight,
+                    fadeRange: fadeRange
+                ))
+                .allowsHitTesting(sheetManager.selectedDetent == .small)
+                .accessibilityHidden(sheetManager.selectedDetent != .small)
             
-            let rawLargeOpacity = 1.0 - (Double(largeHeight - currentHeight) / Double(fadeRange))
-            let rawMediumOpacity = 1.0 - ((currentHeight < mediumHeightHigh ? Double(mediumHeightLow - currentHeight) : Double(currentHeight - mediumHeightHigh)) / Double(fadeRange))
-            let rawSmallOpacity = 1.0 - (Double(currentHeight - smallHeight) / Double(fadeRange))
+            DatePickerContainer(selectedWeek: $selectedWeek)
+                .equatable()
+                .modifier(SheetBandOpacityModifier(
+                    band: .medium,
+                    sheetManager: sheetManager,
+                    hasLargeDetent: hasLargeDetent,
+                    smallHeight: smallHeight,
+                    mediumHeight: mediumHeight,
+                    mediumHeightLow: mediumHeightLow,
+                    mediumHeightHigh: mediumHeightHigh,
+                    largeHeight: largeHeight,
+                    fadeRange: fadeRange
+                ))
+                .allowsHitTesting(sheetManager.selectedDetent == .medium)
+                .accessibilityHidden(sheetManager.selectedDetent != .medium)
             
-            let isAnimatingDirectlyToLarge = sheetManager.previousDetent != .large && sheetManager.selectedDetent == .large && !sheetManager.isDragging
-            let smallIsHidden = currentHeight > smallHeight + fadeRange || isAnimatingDirectlyToLarge
-            let mediumIsHidden = currentHeight > mediumHeightHigh + fadeRange || isAnimatingDirectlyToLarge
-            
-            let finalSmallOpacity = smallIsHidden ? 0.0 : min(max(rawSmallOpacity, 0.0), 1.0)
-            let finalMediumOpacity = mediumIsHidden ? 0.0 : min(max(rawMediumOpacity, 0.0), 1.0)
-            let finalLargeOpacity = min(max(rawLargeOpacity, 0.0), 1.0)
-            
-            ZStack(alignment: .top) {
-                FractionDatePickerContainer(selectedWeek: $selectedWeek)
-                    .frame(height: smallHeight)
-                    .opacity(finalSmallOpacity)
-                    .allowsHitTesting(sheetManager.selectedDetent == .small)
-                    .accessibilityHidden(sheetManager.selectedDetent != .small)
-                
-                DatePickerContainer(selectedWeek: $selectedWeek)
-                    .opacity(finalMediumOpacity)
-                    .allowsHitTesting(sheetManager.selectedDetent == .medium)
-                    .accessibilityHidden(sheetManager.selectedDetent != .medium)
-                
-                NavigationStack {
+            NavigationStack {
                     if let notices = router.openAppNotices {
                        AppNoticeView(notices: notices) {
                            sheetManager.setDetent(.small)
@@ -90,10 +100,104 @@ struct CalendarSheetContent: View {
                 }
                 .id(router.openSettings)
                 .frame(height: largeHeight)
-                .opacity(finalLargeOpacity)
-                .allowsHitTesting(sheetManager.selectedDetent == .large)
-                .accessibilityHidden(sheetManager.selectedDetent != .large)
+                .modifier(SheetBandOpacityModifier(
+                    band: .large,
+                    sheetManager: sheetManager,
+                    hasLargeDetent: hasLargeDetent,
+                    smallHeight: smallHeight,
+                    mediumHeight: mediumHeight,
+                    mediumHeightLow: mediumHeightLow,
+                    mediumHeightHigh: mediumHeightHigh,
+                    largeHeight: largeHeight,
+                    fadeRange: fadeRange
+                ))
+                .allowsHitTesting(hasLargeDetent && sheetManager.selectedDetent == .large)
+                .accessibilityHidden(!hasLargeDetent || sheetManager.selectedDetent != .large)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+}
+
+private enum SheetFadeBand {
+    case small
+    case medium
+    case large
+}
+
+private struct SheetBandOpacityModifier: ViewModifier {
+    let band: SheetFadeBand
+    let sheetManager: GlobalSheetManager
+    let hasLargeDetent: Bool
+    let smallHeight: CGFloat
+    let mediumHeight: CGFloat
+    let mediumHeightLow: CGFloat
+    let mediumHeightHigh: CGFloat
+    let largeHeight: CGFloat
+    let fadeRange: CGFloat
+
+    func body(content: Content) -> some View {
+        let currentHeight = sheetManager.liveMetrics.currentHeight
+        let isAnimatingDirectlyToLarge = hasLargeDetent
+            && sheetManager.previousDetent == .small
+            && sheetManager.selectedDetent == .large
+            && !sheetManager.isDragging
+        let isAnimatingDirectlyBetweenSmallAndLarge = hasLargeDetent
+            && !sheetManager.isDragging
+            && ((sheetManager.previousDetent == .small && sheetManager.selectedDetent == .large)
+                || (sheetManager.previousDetent == .large && sheetManager.selectedDetent == .small))
+
+        let opacity: Double
+        switch band {
+        case .small:
+            let smallIsHidden = currentHeight > smallHeight + fadeRange || isAnimatingDirectlyToLarge
+            let rawSmallOpacity = 1.0 - (Double(currentHeight - smallHeight) / Double(fadeRange))
+            opacity = smallIsHidden ? 0.0 : min(max(rawSmallOpacity, 0.0), 1.0)
+        case .medium:
+            if isAnimatingDirectlyBetweenSmallAndLarge {
+                opacity = 0.0
+            } else if currentHeight <= mediumHeightLow {
+                let effectiveLow = max(smallHeight + max(0, mediumHeight - smallHeight) * 0.5, mediumHeightLow)
+                let effectiveLowFade = min(fadeRange, max(1, effectiveLow - smallHeight))
+                if currentHeight >= effectiveLow {
+                    opacity = 1.0
+                } else {
+                    let rawMediumOpacity = 1.0 - (Double(effectiveLow - currentHeight) / Double(effectiveLowFade))
+                    opacity = min(max(rawMediumOpacity, 0.0), 1.0)
+                }
+            } else if !hasLargeDetent {
+                opacity = 1.0
+            } else {
+                let gap = largeHeight - mediumHeight
+                if gap <= 1 {
+                    opacity = sheetManager.selectedDetent == .large ? 0.0 : 1.0
+                } else {
+                    let effectiveHigh = min(mediumHeightHigh, mediumHeight + gap * 0.4)
+                    let effectiveFade = min(fadeRange, max(1, gap * 0.5))
+                    if currentHeight <= effectiveHigh {
+                        opacity = 1.0
+                    } else {
+                        let rawMediumOpacity = 1.0 - (Double(currentHeight - effectiveHigh) / Double(effectiveFade))
+                        opacity = min(max(rawMediumOpacity, 0.0), 1.0)
+                    }
+                }
+            }
+        case .large:
+            guard hasLargeDetent else {
+                opacity = 0.0
+                break
+            }
+            let gap = largeHeight - mediumHeight
+            if gap <= 1 {
+                opacity = sheetManager.selectedDetent == .large ? 1.0 : 0.0
+            } else {
+                let minStart = mediumHeight + gap * 0.5
+                let effectiveStart = max(minStart, largeHeight - fadeRange)
+                let effectiveFade = max(1, largeHeight - effectiveStart)
+                let rawLargeOpacity = 1.0 - (Double(largeHeight - currentHeight) / Double(effectiveFade))
+                opacity = min(max(rawLargeOpacity, 0.0), 1.0)
             }
         }
+
+        return content.opacity(opacity)
     }
 }

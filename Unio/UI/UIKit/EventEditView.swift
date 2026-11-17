@@ -38,12 +38,18 @@ struct EventEditViewController: UIViewControllerRepresentable {
         }
         
         func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
-            controller.dismiss(animated: true) {
+            let finish = {
                 if case .saved = action {
                     self.parent.onSaved()
                 }
                 
                 self.parent.onDismiss()
+            }
+            
+            if controller.presentingViewController?.presentedViewController === controller {
+                controller.dismiss(animated: true, completion: finish)
+            } else {
+                finish()
             }
         }
     }

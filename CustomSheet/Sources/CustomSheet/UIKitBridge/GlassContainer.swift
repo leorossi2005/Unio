@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import ObjectiveC
 
 public struct SheetCornerRadii: Equatable {
     var tl: CGFloat
@@ -134,6 +135,24 @@ final class GlassContainerView: UIView {
     }
     
     var contentView: UIView { return glassView.contentView }
+
+    func applyLiveCorners(_ radii: SheetCornerRadii) {
+        let changed = abs(cornerRadii.tl - radii.tl) > 0.001
+            || abs(cornerRadii.tr - radii.tr) > 0.001
+            || abs(cornerRadii.bl - radii.bl) > 0.001
+            || abs(cornerRadii.br - radii.br) > 0.001
+        guard changed else { return }
+        cornerRadii = radii
+        if #available(iOS 26, *) {
+            applyCorners(animated: false, duration: 0)
+        } else {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            applyCornerMask()
+            updateShadowPath()
+            CATransaction.commit()
+        }
+    }
     
     func applyCorners(animated: Bool, duration: TimeInterval, useSpring: Bool = false) {
         let block = {
@@ -195,6 +214,236 @@ final class GlassContainerView: UIView {
     }
 }
 
+nonisolated(unsafe) private var verticalSafeAreaStripKey: UInt8 = 0
+
+@MainActor
+private final class VerticalSafeAreaStripConfig: NSObject {
+    var stripTop: Bool
+    var stripBottom: Bool
+    var preserveKeyboard: Bool
+
+    init(stripTop: Bool, stripBottom: Bool, preserveKeyboard: Bool) {
+        self.stripTop = stripTop
+        self.stripBottom = stripBottom
+        self.preserveKeyboard = preserveKeyboard
+    }
+}
+
+@MainActor
+private final class SheetKeyboardTracker {
+    static let shared = SheetKeyboardTracker()
+    private(set) var screenFrame: CGRect = .zero
+
+    private init() {
+        NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillChangeFrameNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            let endFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
+            MainActor.assumeIsolated {
+                self?.screenFrame = endFrame
+            }
+        }
+        NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillHideNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.screenFrame = .zero
+            }
+        }
+    }
+
+    func bottomOverlap(for view: UIView) -> CGFloat {
+        guard !screenFrame.isEmpty,
+              let window = view.window,
+              let screen = window.windowScene?.screen else {
+            return 0
+        }
+        let kbInWindow = window.convert(screenFrame, from: screen.coordinateSpace)
+        let intersected = kbInWindow.intersection(window.bounds)
+        guard !intersected.isNull, intersected.height > 0 else { return 0 }
+        let viewInWindow = view.convert(view.bounds, to: window)
+        return max(0, min(viewInWindow.maxY, window.bounds.maxY) - intersected.minY)
+    }
+}
+
+@MainActor
+enum SheetVerticalSafeAreaStripper {
+    nonisolated(unsafe) private static var swizzledClasses: Set<ObjectIdentifier> = []
+
+    static func attach(to view: UIView, stripTop: Bool, stripBottom: Bool, preserveKeyboard: Bool) {
+        if let existing = objc_getAssociatedObject(view, &verticalSafeAreaStripKey) as? VerticalSafeAreaStripConfig {
+            existing.stripTop = stripTop
+            existing.stripBottom = stripBottom
+            existing.preserveKeyboard = preserveKeyboard
+            return
+        }
+        _ = SheetKeyboardTracker.shared
+        objc_setAssociatedObject(
+            view,
+            &verticalSafeAreaStripKey,
+            VerticalSafeAreaStripConfig(
+                stripTop: stripTop,
+                stripBottom: stripBottom,
+                preserveKeyboard: preserveKeyboard
+            ),
+            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        )
+        swizzleIfNeeded(type(of: view))
+    }
+
+    static func attachNavigationDescendants(in rootController: UIViewController) {
+        if let nav = rootController as? UINavigationController {
+            attachToNavigationController(nav)
+            return
+        }
+        for child in rootController.children {
+            attachNavigationDescendants(in: child)
+        }
+    }
+
+    static func attachToNavigationController(_ nav: UINavigationController) {
+        if let navView = nav.viewIfLoaded {
+            attach(to: navView, stripTop: false, stripBottom: true, preserveKeyboard: true)
+            attachScrollViews(in: navView)
+        }
+        for vc in nav.viewControllers {
+            if let vcView = vc.viewIfLoaded {
+                attach(to: vcView, stripTop: false, stripBottom: true, preserveKeyboard: true)
+            }
+        }
+    }
+
+    private static func attachScrollViews(in root: UIView) {
+        if root is UIScrollView {
+            attach(to: root, stripTop: false, stripBottom: true, preserveKeyboard: true)
+        }
+        for subview in root.subviews {
+            attachScrollViews(in: subview)
+        }
+    }
+
+    private static func swizzleIfNeeded(_ viewClass: UIView.Type) {
+        var ancestor: AnyClass? = viewClass
+        while let current = ancestor {
+            if swizzledClasses.contains(ObjectIdentifier(current)) {
+                return
+            }
+            if current == UIView.self { break }
+            ancestor = class_getSuperclass(current)
+        }
+
+        let sel = #selector(getter: UIView.safeAreaInsets)
+        guard let method = class_getInstanceMethod(viewClass, sel) else { return }
+
+        typealias SafeAreaIMP = @convention(c) @Sendable (UIView, Selector) -> UIEdgeInsets
+        let originalImp = method_getImplementation(method)
+        let originalGetter = unsafeBitCast(originalImp, to: SafeAreaIMP.self)
+
+        let block: @convention(block) (UIView) -> UIEdgeInsets = { view in
+            MainActor.assumeIsolated {
+                var insets = originalGetter(view, sel)
+                if let config = objc_getAssociatedObject(view, &verticalSafeAreaStripKey) as? VerticalSafeAreaStripConfig {
+                    if config.stripTop {
+                        insets.top = 0
+                    }
+                    if config.stripBottom {
+                        if config.preserveKeyboard {
+                            let kbOverlap = SheetKeyboardTracker.shared.bottomOverlap(for: view)
+                            insets.bottom = kbOverlap > 0 ? min(insets.bottom, kbOverlap) : 0
+                        } else {
+                            insets.bottom = 0
+                        }
+                    }
+                }
+                return insets
+            }
+        }
+
+        swizzledClasses.insert(ObjectIdentifier(viewClass))
+        let newImp = imp_implementationWithBlock(block)
+        if !class_addMethod(viewClass, sel, newImp, method_getTypeEncoding(method)) {
+            method_setImplementation(method, newImp)
+        }
+    }
+}
+
+final class SheetHostingController<Content: View>: UIHostingController<Content> {}
+
+final class GlassHostContainerController: UIViewController {
+    weak var glassContainer: GlassContainerView?
+    weak var hostedView: UIView?
+    weak var hostingViewController: UIViewController?
+    var horizontalExpansion: CGFloat = 0 {
+        didSet {
+            guard oldValue != horizontalExpansion else { return }
+            layoutHostedView()
+        }
+    }
+    var fixedContentHeight: CGFloat = 0 {
+        didSet {
+            guard abs(oldValue - fixedContentHeight) > 0.5 else { return }
+            layoutHostedView()
+        }
+    }
+    var onLiveHeightChange: ((CGFloat) -> Void)?
+    var isApplyingSetup: Bool = false
+    private(set) var lastReportedHeight: CGFloat = -1
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        layoutHostedView()
+    }
+
+    func layoutHostedView(forceGlassLayout: Bool = false) {
+        guard let glassContainer, let hostedView else { return }
+        let containerBounds = view.bounds
+        if glassContainer.frame != containerBounds {
+            glassContainer.frame = containerBounds
+            if forceGlassLayout {
+                glassContainer.layoutIfNeeded()
+            }
+        } else if forceGlassLayout {
+            glassContainer.layoutIfNeeded()
+        }
+        let targetHeight = max(
+            containerBounds.height,
+            fixedContentHeight > 0 ? fixedContentHeight : containerBounds.height
+        )
+        let targetFrame = CGRect(
+            x: -horizontalExpansion,
+            y: 0,
+            width: containerBounds.width + (horizontalExpansion * 2),
+            height: targetHeight
+        )
+        if hostedView.frame != targetFrame {
+            hostedView.frame = targetFrame
+        }
+        if let hostingViewController {
+            SheetVerticalSafeAreaStripper.attachNavigationDescendants(in: hostingViewController)
+        }
+        if !isApplyingSetup,
+           containerBounds.height > 0,
+           let onLiveHeightChange,
+           abs(containerBounds.height - lastReportedHeight) > 0.01 {
+            lastReportedHeight = containerBounds.height
+            onLiveHeightChange(containerBounds.height)
+        }
+    }
+}
+
+@MainActor
+final class GlassContainerRef {
+    weak var glass: GlassContainerView?
+
+    func applyLiveCorners(_ radii: SheetCornerRadii) {
+        glass?.applyLiveCorners(radii)
+    }
+}
+
 public struct GlassContainer<Content: View>: UIViewControllerRepresentable {
     var radii: SheetCornerRadii
     var style: GlassEffectStyle = .regular
@@ -204,6 +453,10 @@ public struct GlassContainer<Content: View>: UIViewControllerRepresentable {
     var isEnabled: Bool = true
     var isDragging: Bool = false
     var resetGlassEffect: Int = 0
+    var fixedContentHeight: CGFloat = 0
+    var horizontalContentExpansion: CGFloat = 0
+    var glassRef: GlassContainerRef? = nil
+    var onLiveHeightChange: ((CGFloat) -> Void)? = nil
     private let content: Content
     
     public init(
@@ -215,6 +468,41 @@ public struct GlassContainer<Content: View>: UIViewControllerRepresentable {
         isEnabled: Bool = true,
         isDragging: Bool = false,
         resetGlassEffect: Int = 0,
+        fixedContentHeight: CGFloat = 0,
+        horizontalContentExpansion: CGFloat = 0,
+        onLiveHeightChange: ((CGFloat) -> Void)? = nil,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.init(
+            radii: radii,
+            style: style,
+            tint: tint,
+            animationDuration: animationDuration,
+            useSpring: useSpring,
+            isEnabled: isEnabled,
+            isDragging: isDragging,
+            resetGlassEffect: resetGlassEffect,
+            fixedContentHeight: fixedContentHeight,
+            horizontalContentExpansion: horizontalContentExpansion,
+            glassRef: nil,
+            onLiveHeightChange: onLiveHeightChange,
+            content: content
+        )
+    }
+
+    init(
+        radii: SheetCornerRadii,
+        style: GlassEffectStyle = .regular,
+        tint: Color? = nil,
+        animationDuration: TimeInterval = 0.2,
+        useSpring: Bool = false,
+        isEnabled: Bool = true,
+        isDragging: Bool = false,
+        resetGlassEffect: Int = 0,
+        fixedContentHeight: CGFloat = 0,
+        horizontalContentExpansion: CGFloat = 0,
+        glassRef: GlassContainerRef? = nil,
+        onLiveHeightChange: ((CGFloat) -> Void)? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.radii = radii
@@ -225,11 +513,15 @@ public struct GlassContainer<Content: View>: UIViewControllerRepresentable {
         self.isEnabled = isEnabled
         self.isDragging = isDragging
         self.resetGlassEffect = resetGlassEffect
+        self.fixedContentHeight = fixedContentHeight
+        self.horizontalContentExpansion = horizontalContentExpansion
+        self.glassRef = glassRef
+        self.onLiveHeightChange = onLiveHeightChange
         self.content = content()
     }
     
     public func makeUIViewController(context: Context) -> UIViewController {
-        let controller = UIViewController()
+        let controller = GlassHostContainerController()
         
         let glassContainer = GlassContainerView()
         glassContainer.cornerRadii = radii
@@ -243,46 +535,72 @@ public struct GlassContainer<Content: View>: UIViewControllerRepresentable {
         glassContainer.frame = controller.view.bounds
         glassContainer.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
-        let hosting = UIHostingController(rootView: content)
+        let hosting = SheetHostingController(rootView: content)
         hosting.view.backgroundColor = .clear
         hosting.view.insetsLayoutMarginsFromSafeArea = false
-        hosting.safeAreaRegions = []
+        hosting.safeAreaRegions = [.container]
         hosting.traitOverrides.userInterfaceLevel = .elevated
+        SheetVerticalSafeAreaStripper.attach(
+            to: hosting.view,
+            stripTop: true,
+            stripBottom: true,
+            preserveKeyboard: false
+        )
         
         glassContainer.contentView.addSubview(hosting.view)
-        hosting.view.frame = glassContainer.contentView.bounds
-        hosting.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        controller.isApplyingSetup = true
+        controller.glassContainer = glassContainer
+        controller.hostedView = hosting.view
+        controller.hostingViewController = hosting
+        controller.fixedContentHeight = fixedContentHeight
+        controller.horizontalExpansion = horizontalContentExpansion
+        controller.onLiveHeightChange = onLiveHeightChange
+        controller.layoutHostedView(forceGlassLayout: true)
+        controller.isApplyingSetup = false
         
         controller.addChild(hosting)
         hosting.didMove(toParent: controller)
         
         context.coordinator.glassContainer = glassContainer
         context.coordinator.hostingController = hosting
+        glassRef?.glass = glassContainer
         
         return controller
     }
     
     public func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         let shouldAnimate = (context.transaction.animation != nil)
+        if let hostController = uiViewController as? GlassHostContainerController {
+            hostController.isApplyingSetup = true
+            hostController.onLiveHeightChange = onLiveHeightChange
+            hostController.fixedContentHeight = fixedContentHeight
+            hostController.horizontalExpansion = horizontalContentExpansion
+            hostController.isApplyingSetup = false
+        }
         if let glass = context.coordinator.glassContainer {
-            let radiiChanged = glass.cornerRadii != radii
-            if radiiChanged { glass.cornerRadii = radii }
+            glassRef?.glass = glass
+            if glassRef == nil {
+                let radiiChanged = glass.cornerRadii != radii
+                if radiiChanged {
+                    glass.cornerRadii = radii
+                    glass.applyCorners(animated: shouldAnimate, duration: animationDuration, useSpring: useSpring)
+                }
+            }
             if glass.style != style { glass.style = style }
             
             let newTint = tint.map { UIColor($0) }
             if glass.tint != newTint { glass.tint = newTint }
             
             let enabledChanged = glass.isEnabled != isEnabled
-            if enabledChanged { glass.isEnabled = isEnabled }
+            if enabledChanged {
+                glass.isEnabled = isEnabled
+            }
             
             if glass.resetTrigger != resetGlassEffect { glass.resetTrigger = resetGlassEffect }
             
-            if radiiChanged {
-                glass.applyCorners(animated: shouldAnimate, duration: animationDuration, useSpring: useSpring)
-            }
-            
             if !isDragging || enabledChanged {
-                let transaction = context.transaction
+                var transaction = Transaction(animation: nil)
+                transaction.disablesAnimations = true
                 withTransaction(transaction) {
                     context.coordinator.hostingController?.rootView = content
                 }

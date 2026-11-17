@@ -22,6 +22,7 @@ struct CalendarView: View {
     @State private var sheetRouter: CalendarSheetRouter = .init()
     @State private var coordinator = CalendarCoordinator()
     @State private var viewModel = CalendarViewModel()
+    @State private var deferredResetTask: Task<Void, Never>? = nil
     
     private var selectedWeekBinding: Binding<Date> {
         Binding(
@@ -426,10 +427,12 @@ struct CalendarView: View {
     
     private func handleDetentChange(oldValue: CustomSheetDetent, newValue: CustomSheetDetent) {
         if newValue != .large {
+            var didTriggerSettingsReload = false
             if sheetRouter.openSettings {
                 let hasChanged = sheetRouter.tempSettings.hasChanged(from: settings)
                 
                 if hasChanged {
+                    didTriggerSettingsReload = true
                     coordinator.page = .main
                     viewModel.state = .loading
                     sheetRouter.tempSettings.apply(to: settings)
@@ -472,7 +475,18 @@ struct CalendarView: View {
                 }
             }
             
-            sheetRouter.resetToCalendar()
+            deferredResetTask?.cancel()
+            let shouldDeferReset = (oldValue == .large) && !didTriggerSettingsReload
+            if shouldDeferReset {
+                deferredResetTask = Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(0.25))
+                    guard !Task.isCancelled, sheetRouter.manager.selectedDetent != .large else { return }
+                    sheetRouter.resetToCalendar()
+                }
+            } else {
+                deferredResetTask = nil
+                sheetRouter.resetToCalendar()
+            }
             
             if oldValue == .large {
                 Task { @MainActor in
@@ -480,6 +494,9 @@ struct CalendarView: View {
                     checkPendingNotices()
                 }
             }
+        } else {
+            deferredResetTask?.cancel()
+            deferredResetTask = nil
         }
     }
     

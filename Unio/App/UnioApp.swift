@@ -1,5 +1,5 @@
 //
-//  Univr_CalendarApp.swift
+//  UnioApp.swift
 //  Unio
 //
 //  Created by Leonardo Rossi on 08/10/25.
@@ -25,7 +25,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 }
 
 @main
-struct Univr_CalendarApp: App {
+struct UnioApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @Environment(\.scenePhase) private var scenePhase
     @State private var appStatusManager = AppStatusManager()

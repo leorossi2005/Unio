@@ -17,7 +17,29 @@ SEARCH_PATHS = [
 PROJECT_ROOT = Path(__file__).resolve().parent
 OUTPUT_SWIFT_FILE = PROJECT_ROOT / "Sources" / "CustomSheet" / "Utilities" / "DeviceCornerRadii.swift"
 
-devices_data = {} # { model_id: (radius, device_name) }
+devices_data = {} # { model_id: (radius, displays, device_name) }
+
+def extract_displays(capabilities, fallback_radius):
+    integrated = [
+        d for d in capabilities.get("displays", [])
+        if d.get("displayType") == "integrated"
+    ]
+    if not integrated:
+        r = float(fallback_radius)
+        return [(r, r, r, r, r)]
+
+    result = []
+    for idx, d in enumerate(integrated):
+        tl = float(d.get("cornerRadiusUL", fallback_radius))
+        tr = float(d.get("cornerRadiusUR", fallback_radius))
+        bl = float(d.get("cornerRadiusLL", fallback_radius))
+        br = float(d.get("cornerRadiusLR", fallback_radius))
+        if idx == 0 and "DeviceCornerRadius" in capabilities:
+            main = float(capabilities["DeviceCornerRadius"])
+        else:
+            main = max(tl, tr, bl, br)
+        result.append((main, tl, tr, bl, br))
+    return result
 
 for pattern in SEARCH_PATHS:
     for bundle_path in glob.glob(pattern):
@@ -39,6 +61,7 @@ for pattern in SEARCH_PATHS:
             
             capabilities = cap_data.get("capabilities", {})
             radius = capabilities.get("DeviceCornerRadius", 0.0)
+            displays = extract_displays(capabilities, radius)
             primary_id = capabilities.get("modelIdentifier")
 
             model_ids = set()
@@ -54,7 +77,7 @@ for pattern in SEARCH_PATHS:
                         model_ids.add(rep_id)
 
             for m_id in model_ids:
-                devices_data[m_id] = (float(radius), device_name)
+                devices_data[m_id] = (float(radius), displays, device_name)
 
         except Exception as e:
             print(f"Errore lettura {device_name}: {e}")
@@ -72,9 +95,20 @@ with open(OUTPUT_SWIFT_FILE, "w", encoding="utf-8") as out:
     out.write("    static let all: [String: CGFloat] = [\n")
     
     for model_id in sorted(devices_data.keys()):
-        radius, name = devices_data[model_id]
+        radius, _, name = devices_data[model_id]
         out.write(f'        "{model_id}": {radius}, // {name}\n')
         
+    out.write("    ]\n\n")
+    out.write("    static let displays: [String: [DeviceDisplayCornerRadii]] = [\n")
+
+    for model_id in sorted(devices_data.keys()):
+        _, displays, name = devices_data[model_id]
+        entries = ", ".join(
+            f"DeviceDisplayCornerRadii(main: {main}, tl: {tl}, tr: {tr}, bl: {bl}, br: {br})"
+            for main, tl, tr, bl, br in displays
+        )
+        out.write(f'        "{model_id}": [{entries}], // {name}\n')
+
     out.write("    ]\n")
     out.write("}\n")
 

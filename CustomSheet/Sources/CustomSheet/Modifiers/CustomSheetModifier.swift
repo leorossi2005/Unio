@@ -10,17 +10,18 @@
 import SwiftUI
 
 struct ClampedPadding: ViewModifier, Animatable {
-    var padding: CGFloat
+    var padding: SheetPadding
+    var hasHinge: Bool
     
-    var animatableData: CGFloat {
+    var animatableData: SheetPadding {
         get { padding }
         set { padding = newValue }
     }
     
     func body(content: Content) -> some View {
         content
-            .padding(.horizontal, max(0, padding))
-            .padding(.bottom, max(0, padding))
+            .padding(.horizontal, max(0, hasHinge ? 0 : padding.side))
+            .padding(.bottom, max(0, padding.bottom))
     }
 }
 
@@ -34,7 +35,7 @@ struct CustomSheetModifier<SheetContent: View>: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(
-                OverlayAnchorView(
+                CustomSheetPresentationBridge(
                     isPresented: $isPresented,
                     manager: manager,
                     detents: detents,

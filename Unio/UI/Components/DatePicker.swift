@@ -39,6 +39,11 @@ struct DatePicker: View, Equatable {
     }
     
     var body: some View {
+        pickerContent
+    }
+
+    @ViewBuilder
+    private var pickerContent: some View {
         VStack(spacing: 10) {
             headerView
             
@@ -111,11 +116,15 @@ struct DatePicker: View, Equatable {
     }
 }
 
-struct DatePickerContainer: View {
+struct DatePickerContainer: View, Equatable {
     @Environment(UserSettings.self) var settings
     @Binding var selectedWeek: Date
     @State private var internalIndex: Int = 0
     @AccessibilityFocusState private var focusedPage: Int?
+
+    static func == (lhs: DatePickerContainer, rhs: DatePickerContainer) -> Bool {
+        lhs.selectedWeek == rhs.selectedWeek
+    }
     
     var body: some View {
         let year = Int(settings.selectedYear) ?? selectedWeek.year
