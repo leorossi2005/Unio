@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unio — Privacy Policy</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --border: rgba(0, 0, 0, 0.08);
+      --accent: #0071e3;
+      --pill-bg: rgba(0, 0, 0, 0.06);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --card: #1c1c1e;
+        --text: #f5f5f7;
+        --muted: #98989d;
+        --border: rgba(255, 255, 255, 0.1);
+        --accent: #0a84ff;
+        --pill-bg: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 16px 64px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      background: var(--pill-bg);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .lang-switch button {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .lang-switch button.active {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    p:last-child, ul:last-child {
+      margin-bottom: 0;
+    }
+
+    ul {
+      margin: 0 0 12px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .summary {
+      font-size: 1.02rem;
+    }
+
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    [data-lang] {
+      display: none;
+    }
+
+    [data-lang].visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Unio — Privacy Policy</h1>
+        <p class="subtitle" data-lang="it">Ultimo aggiornamento: 22 novembre 2026</p>
+        <p class="subtitle" data-lang="en">Last updated: November 22, 2026</p>
+      </div>
+      <div class="lang-switch" role="group" aria-label="Language selector">
+        <button type="button" id="btn-it" onclick="setLang('it')">Italiano</button>
+        <button type="button" id="btn-en" onclick="setLang('en')">English</button>
+      </div>
+    </header>
+
+    <!-- ITALIANO -->
+    <main data-lang="it">
+      <section class="card">
+        <h2>In breve</h2>
+        <p class="summary">
+          <strong>Unio</strong> è progettata per funzionare senza account, senza tracciamento e senza pubblicità.
+          Le tue preferenze, i tuoi impegni personali e le notifiche restano esclusivamente sul tuo dispositivo.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>1. Dati salvati solo in locale</h2>
+        <p>Tutti i dati legati all'utilizzo quotidiano dell'app vengono salvati esclusivamente in locale sul tuo dispositivo:</p>
+        <ul>
+          <li><strong>Preferenze di studio</strong>: anno accademico, corso di laurea, anno di corso, gruppo matricola (pari/dispari) e sede selezionata.</li>
+          <li><strong>Impegni personali e notifiche</strong>: eventi personali creati dall'utente e promemoria locali programmati tramite iOS.</li>
+          <li><strong>Cache locale</strong>: copia temporanea di orari, aule e coordinate per velocizzare il caricamento e consentire la consultazione offline.</li>
+        </ul>
+        <p>
+          Questi dati non vengono mai inviati a server esterni e vengono rimossi completamente utilizzando la funzione di reset nelle Impostazioni oppure disinstallando l'app.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>2. Richieste al server per orari e avvisi</h2>
+        <p>
+          Per mostrare orari delle lezioni, disponibilità delle aule e avvisi di servizio, Unio effettua richieste HTTPS anonime al proprio server backend (<code>unicalendar.dedyn.io</code>).
+          Le richieste includono uno <code>User-Agent</code> tecnico contenente versione dell'app, modello del dispositivo e versione del sistema operativo.
+          Non vengono creati profili utente, né memorizzate cronologie personali delle richieste.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>3. Invio volontario di Feedback</h2>
+        <p>
+          Solo se scegli esplicitamente di inviare una segnalazione dalla schermata <strong>Feedback</strong> nelle Impostazioni, l'app trasmette al server:
+        </p>
+        <ul>
+          <li>titolo e descrizione inseriti nel modulo;</li>
+          <li>eventuale immagine allegata (selezionata da te tramite il selettore di sistema di iOS);</li>
+          <li>informazioni tecniche del dispositivo (versione e build dell'app, modello del dispositivo, sistema operativo e relativa versione).</li>
+        </ul>
+        <p>
+          Al momento dell'invio, l'indirizzo IP viene utilizzato esclusivamente in memoria temporanea per prevenire abusi (rate limiting) e non viene salvato nel database.
+          La segnalazione e l'eventuale allegato vengono conservati sul server e notificati privatamente allo sviluppatore tramite un bot Telegram dedicato al solo scopo di analizzare e risolvere il problema segnalato, e vengono eliminati una volta gestiti.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>4. Servizi di sistema e di terze parti</h2>
+        <ul>
+          <li><strong>Mappe e ricerca indirizzi (Apple Maps / MapKit)</strong>: quando visualizzi la mappa di un'aula o cerchi un luogo per un impegno personale, le richieste vengono gestite direttamente da Apple secondo la <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener noreferrer">Privacy Policy di Apple</a>.</li>
+          <li><strong>Calendario di sistema</strong>: l'aggiunta di una lezione al Calendario Apple avviene tramite il foglio nativo di sistema; Unio non legge né accede agli altri eventi del tuo calendario.</li>
+          <li><strong>Libreria Foto</strong>: la scelta di uno screenshot per il feedback usa il selettore nativo di sistema; Unio riceve unicamente la singola immagine selezionata.</li>
+          <li><strong>Nessun tracciamento</strong>: Unio non integra SDK pubblicitari, strumenti di analytics o sistemi di tracciamento di terze parti.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>5. Contatti e richieste</h2>
+        <p>
+          Unio è sviluppata da <strong>Leonardo Rossi</strong>.
+          Per qualsiasi domanda sulla privacy o per richiedere la rimozione di un feedback inviato, puoi scrivere a
+          <a href="mailto:leonardo.rossi1922005@gmail.com">leonardo.rossi1922005@gmail.com</a>.
+        </p>
+      </section>
+    </main>
+
+    <!-- ENGLISH -->
+    <main data-lang="en">
+      <section class="card">
+        <h2>Summary</h2>
+        <p class="summary">
+          <strong>Unio</strong> is built to work with no user accounts, no tracking, and no ads.
+          Your preferences, personal commitments, and reminders stay exclusively on your device.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>1. Data Stored Locally Only</h2>
+        <p>All data related to everyday use of the app is stored solely on your device:</p>
+        <ul>
+          <li><strong>Study preferences</strong>: academic year, degree course, course year, odd/even student ID group, and selected campus.</li>
+          <li><strong>Personal commitments &amp; notifications</strong>: custom personal events and local reminders scheduled via iOS.</li>
+          <li><strong>Local cache</strong>: temporary copies of timetables, classrooms, and coordinates to improve loading speed and enable offline viewing.</li>
+        </ul>
+        <p>
+          This data is never transmitted to external servers and is completely deleted when you reset the app in Settings or uninstall it.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>2. Server Requests for Schedules &amp; Notices</h2>
+        <p>
+          To display class timetables, classroom availability, and service notices, Unio sends anonymous HTTPS requests to its backend server (<code>unicalendar.dedyn.io</code>).
+          Requests include a standard technical <code>User-Agent</code> containing the app version, device model, and OS version.
+          No user profiles or personal request histories are created or stored.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>3. Voluntary Feedback Submissions</h2>
+        <p>
+          Only when you explicitly submit a report through the <strong>Feedback</strong> screen in Settings does the app send the following to the server:
+        </p>
+        <ul>
+          <li>the title and message you wrote;</li>
+          <li>an optional image attachment chosen by you via the system iOS photo picker;</li>
+          <li>technical device information (app version and build, device model, OS name and version).</li>
+        </ul>
+        <p>
+          During submission, your IP address is held temporarily in memory solely for anti-spam rate limiting and is not stored in the database.
+          Submitted reports and optional attachments are stored on the server and forwarded privately to the developer via a dedicated Telegram bot solely to investigate and fix the reported issue, and are deleted once handled.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>4. System &amp; Third-Party Services</h2>
+        <ul>
+          <li><strong>Maps &amp; Location Search (Apple Maps / MapKit)</strong>: when viewing a classroom map or searching for a location for a personal commitment, requests are handled directly by Apple under the <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener noreferrer">Apple Privacy Policy</a>.</li>
+          <li><strong>Apple Calendar</strong>: exporting a class to Apple Calendar uses the native iOS sheet; Unio does not read or access your existing calendar events.</li>
+          <li><strong>Photo Library</strong>: attaching a screenshot to a feedback report uses the native system picker; Unio only receives the single image you choose.</li>
+          <li><strong>No tracking</strong>: Unio does not include advertising SDKs, analytics libraries, or third-party tracking tools.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>5. Contact</h2>
+        <p>
+          Unio is developed by <strong>Leonardo Rossi</strong>.
+          If you have any privacy questions or wish to request deletion of a submitted feedback report, please contact
+          <a href="mailto:leonardo.rossi1922005@gmail.com">leonardo.rossi1922005@gmail.com</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      &copy; 2026 Leonardo Rossi — Unio
+    </footer>
+  </div>
+
+  <script>
+    function setLang(lang) {
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        el.classList.toggle('visible', el.getAttribute('data-lang') === lang);
+      });
+      document.getElementById('btn-it').classList.toggle('active', lang === 'it');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    }
+
+    const preferred = (navigator.language || 'it').toLowerCase().startsWith('it') ? 'it' : 'en';
+    setLang(preferred);
+  </script>
+</body>
+</html>
