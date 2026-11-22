@@ -15,6 +15,8 @@ struct WelcomeOnboardingPage: View {
     
     let title: LocalizedStringKey
     let subtitle: LocalizedStringResource
+    let isActive: Bool
+    @Binding var hasAnimated: Bool
     @Binding var errorMessage: String?
     let bottomPadding: CGFloat
     
@@ -23,30 +25,63 @@ struct WelcomeOnboardingPage: View {
     let isButtonDisabled: Bool
     let buttonAction: () -> Void
     
-    @State private var isExpanded: Bool = false
-    @State private var isBlurred: Bool = false
-    @State private var showTitle: Bool = false
-    @State private var showSubtitle: Bool = false
-    @State private var showButton: Bool = false
+    @State private var isExpanded: Bool
+    @State private var isBlurred: Bool
+    @State private var showTitle: Bool
+    @State private var showSubtitle: Bool
+    @State private var showButton: Bool
     
-    @State private var zStackCenterY: CGFloat = 0
+    @State private var zStackCenter: CGPoint = .zero
     
     private let initialSize: CGFloat = 200
     
-    private var screenCenterY: CGFloat {
+    init(
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringResource,
+        isActive: Bool,
+        hasAnimated: Binding<Bool>,
+        errorMessage: Binding<String?>,
+        bottomPadding: CGFloat,
+        buttonTitle: LocalizedStringKey,
+        isLoading: Bool,
+        isButtonDisabled: Bool,
+        buttonAction: @escaping () -> Void
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.isActive = isActive
+        self._hasAnimated = hasAnimated
+        self._errorMessage = errorMessage
+        self.bottomPadding = bottomPadding
+        self.buttonTitle = buttonTitle
+        self.isLoading = isLoading
+        self.isButtonDisabled = isButtonDisabled
+        self.buttonAction = buttonAction
+        
+        let alreadyAnimated = hasAnimated.wrappedValue
+        self._isExpanded = State(initialValue: alreadyAnimated)
+        self._isBlurred = State(initialValue: alreadyAnimated)
+        self._showTitle = State(initialValue: alreadyAnimated)
+        self._showSubtitle = State(initialValue: alreadyAnimated)
+        self._showButton = State(initialValue: alreadyAnimated)
+    }
+    
+    private var windowBounds: CGRect {
         let window = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .flatMap(\.windows)
             .first(where: \.isKeyWindow)
-        let height = window?.bounds.height
-            ?? (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds.height
-            ?? UIScreen.main.bounds.height
-        return height / 2
+        return window?.bounds
+            ?? (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds
+            ?? UIScreen.main.bounds
     }
     
-    private var initialOffset: CGFloat {
-        guard zStackCenterY > 0 else { return 0 }
-        return screenCenterY - zStackCenterY
+    private var initialOffset: CGSize {
+        guard isActive, !isExpanded, zStackCenter != .zero else { return .zero }
+        return CGSize(
+            width: windowBounds.midX - zStackCenter.x,
+            height: windowBounds.midY - zStackCenter.y
+        )
     }
     
     private var styledSubtitle: AttributedString {
@@ -68,14 +103,16 @@ struct WelcomeOnboardingPage: View {
             let maxDimension = min(proxy.size.width - 32, proxy.size.height * 0.52, 440)
             let targetSize = max(maxDimension, 200)
             let currentSize = isExpanded ? targetSize : initialSize
-            let currentOffset = isExpanded ? (proxy.size.height < 600 ? -24 : -40) : initialOffset
+            let currentOffset = isExpanded
+                ? CGSize(width: 0, height: proxy.size.height < 600 ? -24 : -40)
+                : initialOffset
             
             VStack(spacing: 12) {
                 Spacer()
                 
                 ZStack {
                     iconView(size: currentSize)
-                        .offset(y: currentOffset)
+                        .offset(currentOffset)
                     
                     ScrollView {
                         ZStack {
@@ -109,10 +146,11 @@ struct WelcomeOnboardingPage: View {
                 .frame(maxWidth: .infinity)
                 .background {
                     Color.clear
-                        .onGeometryChange(for: CGFloat.self) { proxy in
-                            proxy.frame(in: .global).midY
-                        } action: { midY in
-                            zStackCenterY = midY
+                        .onGeometryChange(for: CGPoint.self) { proxy in
+                            let frame = proxy.frame(in: .global)
+                            return CGPoint(x: frame.midX, y: frame.midY)
+                        } action: { center in
+                            zStackCenter = center
                         }
                 }
                 
@@ -134,7 +172,7 @@ struct WelcomeOnboardingPage: View {
             .multilineTextAlignment(.center)
         }
         .containerRelativeFrame(.horizontal)
-        .task {
+        .task(id: isActive) {
             startAnimation()
         }
     }
@@ -219,7 +257,8 @@ struct WelcomeOnboardingPage: View {
     }
     
     private func startAnimation() {
-        guard !isExpanded else { return }
+        guard isActive, !hasAnimated, !isExpanded else { return }
+        hasAnimated = true
         
         Task { @MainActor in
             if reduceMotion {

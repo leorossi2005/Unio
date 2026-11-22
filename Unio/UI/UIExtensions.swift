@@ -244,10 +244,11 @@ extension ToolbarContent {
 
 extension EnvironmentValues {
     @Entry var safeAreaInsets: UIEdgeInsets = .zero
+    @Entry var windowSize: CGSize = .zero
 }
 
 private struct WindowInsetsReader: UIViewRepresentable {
-    let onChange: (UIEdgeInsets) -> Void
+    let onChange: (UIEdgeInsets, CGSize) -> Void
 
     func makeUIView(context: Context) -> ReaderView {
         let view = ReaderView()
@@ -262,8 +263,9 @@ private struct WindowInsetsReader: UIViewRepresentable {
     }
 
     final class ReaderView: UIView {
-        var onChange: ((UIEdgeInsets) -> Void)?
-        private var last: UIEdgeInsets?
+        var onChange: ((UIEdgeInsets, CGSize) -> Void)?
+        private var lastInsets: UIEdgeInsets?
+        private var lastSize: CGSize?
 
         override func didMoveToWindow() {
             super.didMoveToWindow()
@@ -275,11 +277,20 @@ private struct WindowInsetsReader: UIViewRepresentable {
             report()
         }
 
+        override func safeAreaInsetsDidChange() {
+            super.safeAreaInsetsDidChange()
+            report()
+        }
+
         func report() {
-            guard let insets = window?.safeAreaInsets, insets != last else { return }
-            last = insets
+            guard let window else { return }
+            let insets = window.safeAreaInsets
+            let size = window.bounds.size
+            guard insets != lastInsets || size != lastSize else { return }
+            lastInsets = insets
+            lastSize = size
             DispatchQueue.main.async { [weak self] in
-                self?.onChange?(insets)
+                self?.onChange?(insets, size)
             }
         }
     }
@@ -287,13 +298,18 @@ private struct WindowInsetsReader: UIViewRepresentable {
 
 private struct SafeAreaInsetsReader: ViewModifier {
     @State private var insets: UIEdgeInsets = .zero
+    @State private var windowSize: CGSize = .zero
 
     func body(content: Content) -> some View {
         content
             .environment(\.safeAreaInsets, insets)
+            .environment(\.windowSize, windowSize)
             .background {
-                WindowInsetsReader { insets = $0 }
-                    .allowsHitTesting(false)
+                WindowInsetsReader { newInsets, newSize in
+                    insets = newInsets
+                    windowSize = newSize
+                }
+                .allowsHitTesting(false)
             }
     }
 }

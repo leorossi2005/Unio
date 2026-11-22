@@ -29,6 +29,7 @@ struct OnboardingPage<Content: View>: View {
     @State private var showTitle: Bool = false
     @State private var showSubtitle: Bool = false
     @State private var showContent: Bool = false
+    @State private var showButton: Bool = false
     
     private var styledSubtitle: AttributedString {
         var attributed = AttributedString(localized: subtitle)
@@ -87,6 +88,9 @@ struct OnboardingPage<Content: View>: View {
                 isDisabled: isButtonDisabled || !isActive,
                 action: buttonAction
             )
+            .opacity(showButton ? 1 : 0)
+            .blur(radius: showButton || reduceMotion ? 0 : 12)
+            .allowsHitTesting(showButton)
         }
         .padding(.horizontal, max(bottomPadding, 16))
         .safeAreaPadding(.bottom, bottomPadding == 0 ? 16 : textFieldFocus ? 10 : 0)
@@ -99,6 +103,7 @@ struct OnboardingPage<Content: View>: View {
                         showTitle = true
                         showSubtitle = true
                         showContent = true
+                        showButton = true
                     }
                 } else {
                     withAnimation(.spring(response: 0.80, dampingFraction: 0.84)) {
@@ -109,6 +114,9 @@ struct OnboardingPage<Content: View>: View {
                     }
                     withAnimation(.spring(response: 0.80, dampingFraction: 0.84).delay(0.20)) {
                         showContent = true
+                    }
+                    withAnimation(.easeInOut(duration: 0.5).delay(0.30)) {
+                        showButton = true
                     }
                 }
                 
@@ -122,6 +130,7 @@ struct OnboardingPage<Content: View>: View {
                     showTitle = false
                     showSubtitle = false
                     showContent = false
+                    showButton = false
                 }
             }
         }

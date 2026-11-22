@@ -25,6 +25,7 @@ struct Onboarding: View {
     @State private var viewModel = UniversityDataManager()
     
     @State private var step: OnboardingStep? = .welcome
+    @State private var hasAnimatedWelcome: Bool = false
     @State private var loadingStep: OnboardingStep? = nil
     @State private var transitionTask: Task<Void, Never>? = nil
     @State private var errorText: String?
@@ -166,6 +167,8 @@ struct Onboarding: View {
         case .welcome: WelcomeOnboardingPage(
             title: "Benvenuto!",
             subtitle: "Basta siti lenti o **app obsolete** per capire che **lezioni** hai.\n**Ora hai tutto in un unico posto.**",
+            isActive: step == .welcome,
+            hasAnimated: $hasAnimatedWelcome,
             errorMessage: $errorText,
             bottomPadding: safeAreas.bottom,
             buttonTitle: "Continua",

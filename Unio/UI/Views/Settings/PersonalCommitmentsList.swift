@@ -11,6 +11,8 @@ import SwiftUI
 import UnioCore
 
 struct PersonalCommitmentsList: View {
+    @Environment(\.safeAreaInsets) private var safeAreas
+    @Environment(\.windowSize) private var windowSize
     @State private var commitmentsManager = CommitmentsManager.shared
     @State private var editingEvent: PersonalEvent? = nil
     @State private var eventToDelete: PersonalEvent? = nil
@@ -62,7 +64,12 @@ struct PersonalCommitmentsList: View {
                                 .contextMenu {
                                     contextMenuButtons(event: event)
                                 } preview: {
-                                    CalendarItemPreview(item: .personal(event), internalItem: event)
+                                    CalendarItemPreview(
+                                        item: .personal(event),
+                                        internalItem: event,
+                                        safeAreas: safeAreas,
+                                        windowSize: windowSize
+                                    )
                                 }
                                 .listRowInsets(EdgeInsets())
                                 .listRowBackground(Color.clear)

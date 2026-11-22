@@ -13,10 +13,25 @@ import CustomSheet
 
 struct CalendarItemPreview: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.safeAreaInsets) private var envSafeAreas
+    @Environment(\.windowSize) private var envWindowSize
     
     let item: CalendarItem
     let internalItem: any CalendarDisplayable
     var isNotificationContext: Bool = false
+    var safeAreas: UIEdgeInsets? = nil
+    var windowSize: CGSize? = nil
+    
+    private var previewWidth: CGFloat? {
+        guard !isNotificationContext else { return nil }
+        let resolvedSafeAreas = safeAreas ?? envSafeAreas
+        let resolvedWindowSize = windowSize ?? envWindowSize
+        let containerWidth = resolvedWindowSize.width > 0 ? resolvedWindowSize.width : UIScreen.main.bounds.width
+        let availableWidth = max(containerWidth - resolvedSafeAreas.left - resolvedSafeAreas.right - 32, 0)
+        let usesCompactPreviewCard = UIDevice.isIpad || horizontalSizeClass == .regular || containerWidth >= 500
+        return usesCompactPreviewCard ? min(320, availableWidth) : availableWidth
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -111,7 +126,7 @@ struct CalendarItemPreview: View {
         }
         .padding(24)
         .frame(
-            width: isNotificationContext ? nil : (UIDevice.isIpad ? 320 : UIScreen.main.bounds.width - 32),
+            width: previewWidth,
             alignment: .leading
         )
         .fixedSize(horizontal: false, vertical: true)

@@ -157,6 +157,8 @@ struct PauseCard: View {
 
 struct CardItemContainer: View {
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
+    @Environment(\.safeAreaInsets) private var safeAreas
+    @Environment(\.windowSize) private var windowSize
     
     let item: CalendarItem
     let sheetRouter: CalendarSheetRouter
@@ -215,7 +217,12 @@ struct CardItemContainer: View {
                 .contextMenu {
                     contextMenuButtons
                 } preview: {
-                    CalendarItemPreview(item: item, internalItem: internalItem)
+                    CalendarItemPreview(
+                        item: item,
+                        internalItem: internalItem,
+                        safeAreas: safeAreas,
+                        windowSize: windowSize
+                    )
                 }
                 .alert("Eliminare questo impegno?", isPresented: $showDeletePopover) {
                     Button("Conferma", role: .destructive, action: deleteEvent)
