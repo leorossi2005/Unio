@@ -17,7 +17,7 @@ public class UserSettings {
     private enum Key: String {
         case selectedYear, selectedCourse, selectedCourseName, selectedAcademicYear, selectedAcademicYearName
         case foundMatricola, matricola, onboardingCompleted
-        case settingsVersion, latestVersion, locationKey
+        case latestVersion, locationKey
     }
     
     private enum Default {
@@ -30,7 +30,6 @@ public class UserSettings {
         static let latestVersion: String = Bundle.main.clearAppVersion
         static let locationKey = "1"
         static let boolFalse = false
-        static let currentVersion = 1
     }
     
     public var selectedYear: String {
@@ -74,8 +73,6 @@ public class UserSettings {
     }
     
     private init() {
-        Self.performV1Migration()
-        
         self.selectedYear = Self.load(.selectedYear, fallback: Default.year)
         self.selectedCourse = Self.load(.selectedCourse, fallback: Default.course)
         self.selectedCourseName = Self.load(.selectedCourseName, fallback: Default.courseName)
@@ -86,26 +83,6 @@ public class UserSettings {
         self.onboardingCompleted = Self.load(.onboardingCompleted, fallback: Default.boolFalse)
         self.latestVersion = Self.load(.latestVersion, fallback: Default.latestVersion)
         self.locationKey = Self.load(.locationKey, fallback: Default.locationKey)
-    }
-    
-    private static let isTestFlightMigrationEnabled = true
-    
-    private static func performV1Migration() {
-        guard isTestFlightMigrationEnabled else { return }
-        
-        let savedVersion = load(.settingsVersion, fallback: 0)
-        guard savedVersion < 1 else { return }
-        
-        save(Default.year, key: .selectedYear)
-        save(Default.course, key: .selectedCourse)
-        save(Default.academicYear, key: .selectedAcademicYear)
-        save(Default.boolFalse, key: .foundMatricola)
-        save(Default.matricola, key: .matricola)
-        save(Default.boolFalse, key: .onboardingCompleted)
-        
-        save("0.9", key: .latestVersion)
-        save(Default.currentVersion, key: .settingsVersion)
-        Task { await CacheManager.shared.clearAllDiskCache() }
     }
     
     public func reset() {

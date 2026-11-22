@@ -194,7 +194,10 @@ struct Onboarding: View {
                 guard step == .year, loadingStep == nil else { return }
                 handlePageTransition(to: .course) {
                     let year = settings.selectedYear
-                    if year != viewModel.coursesYear { settings.selectedCourse = "0" }
+                    if year != viewModel.coursesYear {
+                        settings.selectedCourse = "0"
+                        settings.selectedCourseName = ""
+                    }
                     try await viewModel.reloadCourses(year: year)
                 }
             }
@@ -213,10 +216,14 @@ struct Onboarding: View {
             buttonAction: {
                 guard step == .course else { return }
                 searchTextFieldFocus = false
+                if let courseLabel = viewModel.courses.first(where: { $0.id == settings.selectedCourse })?.label {
+                    settings.selectedCourseName = courseLabel
+                }
                 viewModel.updateAcademicYears(for: settings.selectedCourse)
                 
                 if viewModel.academicYears.count <= 5, let firstYear = viewModel.academicYears.first {
                     settings.selectedAcademicYear = firstYear.id
+                    settings.selectedAcademicYearName = firstYear.label
                 } else {
                     settings.selectedAcademicYear = "0"
                     settings.selectedAcademicYearName = ""
@@ -233,6 +240,11 @@ struct Onboarding: View {
                 selectedItem: $settings.selectedCourse,
                 items: viewModel.courses
             )
+            .onChange(of: settings.selectedCourse) { _, newValue in
+                if let courseLabel = viewModel.courses.first(where: { $0.id == newValue })?.label {
+                    settings.selectedCourseName = courseLabel
+                }
+            }
         }
         case .academicYear: OnboardingPage(
             title: "Che anno frequenti?",
@@ -365,6 +377,7 @@ struct Onboarding: View {
     }
     
     func completeOnboarding() {
+        settings.latestVersion = Bundle.main.clearAppVersion
         settings.onboardingCompleted = true
     }
     

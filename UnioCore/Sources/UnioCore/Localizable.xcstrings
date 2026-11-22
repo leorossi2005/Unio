@@ -2536,6 +2536,57 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
+            "value" : "Unio is now fully optimized for the iPhone Duo! It now supports both the external and internal screens, ensuring the sheet remains compatible in all the various scenarios the app may encounter. In addition, several issues that were causing layout problems on the iPhone Duo have been resolved."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unio ora è completamente ottimizzata per l'iPhone Duo! Ora supporta sia lo schermo esterno che interno, rendendo compatibile la sheet in tutte le varie condizioni in cui l'app può trovarsi. Inoltre sono stati risolti alcuni problemi che rompevano il layout sull'iPhone Duo."
+          }
+        }
+      }
+    },
+    "v1_0_0-01-short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optimized experience on iPhone Duo different form factors."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Esperienza d'uso ottimizzata sui diversi formati dell'iPhone Duo."
+          }
+        }
+      }
+    },
+    "v1_0_0-01-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone Duo Support"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Supporto per iPhone Duo"
+          }
+        }
+      }
+    },
+    "v1_0_0-02-long" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "A new screen accessible from the top bar lets you check daily classroom status for any university location. Each card shows the status updated every minute along with a horizontal timeline of the day's events. Tapping a classroom opens the full detail view."
           }
         },
@@ -2547,7 +2598,7 @@
         }
       }
     },
-    "v1_0_0-01-short" : {
+    "v1_0_0-02-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2564,7 +2615,7 @@
         }
       }
     },
-    "v1_0_0-01-title" : {
+    "v1_0_0-02-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2581,7 +2632,7 @@
         }
       }
     },
-    "v1_0_0-02-long" : {
+    "v1_0_0-03-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2598,7 +2649,7 @@
         }
       }
     },
-    "v1_0_0-02-short" : {
+    "v1_0_0-03-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2615,7 +2666,7 @@
         }
       }
     },
-    "v1_0_0-02-title" : {
+    "v1_0_0-03-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2632,7 +2683,7 @@
         }
       }
     },
-    "v1_0_0-03-long" : {
+    "v1_0_0-04-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2649,7 +2700,7 @@
         }
       }
     },
-    "v1_0_0-03-short" : {
+    "v1_0_0-04-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2666,7 +2717,7 @@
         }
       }
     },
-    "v1_0_0-03-title" : {
+    "v1_0_0-04-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2683,7 +2734,7 @@
         }
       }
     },
-    "v1_0_0-04-long" : {
+    "v1_0_0-05-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2700,7 +2751,7 @@
         }
       }
     },
-    "v1_0_0-04-short" : {
+    "v1_0_0-05-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2717,7 +2768,7 @@
         }
       }
     },
-    "v1_0_0-04-title" : {
+    "v1_0_0-05-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2734,7 +2785,7 @@
         }
       }
     },
-    "v1_0_0-05-long" : {
+    "v1_0_0-06-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2751,7 +2802,7 @@
         }
       }
     },
-    "v1_0_0-05-short" : {
+    "v1_0_0-06-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2768,7 +2819,7 @@
         }
       }
     },
-    "v1_0_0-05-title" : {
+    "v1_0_0-06-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2785,7 +2836,7 @@
         }
       }
     },
-    "v1_0_0-06-long" : {
+    "v1_0_0-07-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2802,7 +2853,7 @@
         }
       }
     },
-    "v1_0_0-06-short" : {
+    "v1_0_0-07-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2819,7 +2870,7 @@
         }
       }
     },
-    "v1_0_0-06-title" : {
+    "v1_0_0-07-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2836,7 +2887,7 @@
         }
       }
     },
-    "v1_0_0-07-long" : {
+    "v1_0_0-08-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2853,7 +2904,7 @@
         }
       }
     },
-    "v1_0_0-07-short" : {
+    "v1_0_0-08-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2870,7 +2921,7 @@
         }
       }
     },
-    "v1_0_0-07-title" : {
+    "v1_0_0-08-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2887,7 +2938,7 @@
         }
       }
     },
-    "v1_0_0-08-long" : {
+    "v1_0_0-09-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2904,7 +2955,7 @@
         }
       }
     },
-    "v1_0_0-08-short" : {
+    "v1_0_0-09-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2921,7 +2972,7 @@
         }
       }
     },
-    "v1_0_0-08-title" : {
+    "v1_0_0-09-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2938,7 +2989,7 @@
         }
       }
     },
-    "v1_0_0-09-long" : {
+    "v1_0_0-10-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2955,7 +3006,7 @@
         }
       }
     },
-    "v1_0_0-09-short" : {
+    "v1_0_0-10-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2972,7 +3023,7 @@
         }
       }
     },
-    "v1_0_0-09-title" : {
+    "v1_0_0-10-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2989,7 +3040,7 @@
         }
       }
     },
-    "v1_0_0-10-long" : {
+    "v1_0_0-11-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3006,7 +3057,7 @@
         }
       }
     },
-    "v1_0_0-10-short" : {
+    "v1_0_0-11-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3023,7 +3074,7 @@
         }
       }
     },
-    "v1_0_0-10-title" : {
+    "v1_0_0-11-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3040,7 +3091,7 @@
         }
       }
     },
-    "v1_0_0-11-long" : {
+    "v1_0_0-12-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3057,7 +3108,7 @@
         }
       }
     },
-    "v1_0_0-11-short" : {
+    "v1_0_0-12-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3074,7 +3125,7 @@
         }
       }
     },
-    "v1_0_0-11-title" : {
+    "v1_0_0-12-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3091,7 +3142,7 @@
         }
       }
     },
-    "v1_0_0-12-long" : {
+    "v1_0_0-13-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3108,7 +3159,7 @@
         }
       }
     },
-    "v1_0_0-12-short" : {
+    "v1_0_0-13-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3125,7 +3176,7 @@
         }
       }
     },
-    "v1_0_0-12-title" : {
+    "v1_0_0-13-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3142,7 +3193,58 @@
         }
       }
     },
-    "v1_0_0-13-long" : {
+    "v1_0_0-14-long" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Several improvements have been made to the custom sheet added in the previous version, which is now nearly identical to the native sheet across all versions supported by the app, including background animations on iOS 17 and 18, dynamic gradients on iOS 26 and 27, dynamic changes to rounded corners, dimensions, and overall behavior. iPadOS improvements and full support for the iPhone Duo are also included. And as the icing on the cake, 120Hz is now supported, performance has been improved, and the perceived smoothness is now nearly identical to that of the native sheet."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sono stati fatti svariati miglioramenti alla custom sheet aggiunta con la versione precedente, la quale ora è quasi identica alla nativa in tutte le versioni supportate dall'app, comprese le animazioni di sfondo su iOS 17 e 18, le sfumature dinamiche su iOS 26 e 27, il cambio dinamico dei bordi stondati, le dimensioni e il comportamento in se. Inclusi anche miglioramenti in iPadOS e il supporto completo per l'iPhone Duo. E come ciliegina sulla torta sono ora supportati i 120Hz, sono state migliorate le performance e ora la fluidità percepita è pressoché identica alla sheet nativa."
+          }
+        }
+      }
+    },
+    "v1_0_0-14-short" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Greater accuracy with the native sheet, iPhone Duo, 120 fps and improved performance."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Maggiore accuratezza con la sheet nativa, iPhone Duo, 120fps e performance migliorate."
+          }
+        }
+      }
+    },
+    "v1_0_0-14-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Improvements to the custom sheet"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Miglioramenti alla custom sheet"
+          }
+        }
+      }
+    },
+    "v1_0_0-15-long" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3159,7 +3261,7 @@
         }
       }
     },
-    "v1_0_0-13-short" : {
+    "v1_0_0-15-short" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -3176,7 +3278,7 @@
         }
       }
     },
-    "v1_0_0-13-title" : {
+    "v1_0_0-15-title" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
