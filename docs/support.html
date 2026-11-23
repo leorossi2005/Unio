@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unio - Supporto</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --border: rgba(0, 0, 0, 0.08);
+      --accent: #0071e3;
+      --pill-bg: rgba(0, 0, 0, 0.06);
+      --row-bg: rgba(0, 0, 0, 0.03);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --card: #1c1c1e;
+        --text: #f5f5f7;
+        --muted: #98989d;
+        --border: rgba(255, 255, 255, 0.1);
+        --accent: #0a84ff;
+        --pill-bg: rgba(255, 255, 255, 0.1);
+        --row-bg: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 16px 64px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      background: var(--pill-bg);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .lang-switch button {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .lang-switch button.active {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      margin: 16px 0 4px;
+      font-size: 1rem;
+    }
+
+    h3:first-of-type {
+      margin-top: 4px;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    p:last-child, ul:last-child {
+      margin-bottom: 0;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .contact-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .contact-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--row-bg);
+      border-radius: 14px;
+      flex-wrap: wrap;
+    }
+
+    .contact-label {
+      font-weight: 600;
+    }
+
+    .contact-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--muted);
+    }
+
+    [data-lang] {
+      display: none;
+    }
+
+    [data-lang].visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1 data-lang="it">Unio - Supporto</h1>
+        <h1 data-lang="en">Unio - Support</h1>
+        <p class="subtitle" data-lang="it">Hai bisogno di aiuto o vuoi segnalare un problema?</p>
+        <p class="subtitle" data-lang="en">Need help or want to report an issue?</p>
+      </div>
+      <div class="lang-switch" role="group" aria-label="Language selector">
+        <button type="button" id="btn-it" onclick="setLang('it')">Italiano</button>
+        <button type="button" id="btn-en" onclick="setLang('en')">English</button>
+      </div>
+    </header>
+
+    <!-- ITALIANO -->
+    <main data-lang="it">
+      <section class="card">
+        <h2>Contatti</h2>
+        <p>
+          Per domande, segnalazioni di bug o suggerimenti puoi contattarmi direttamente attraverso uno di questi canali:
+        </p>
+        <div class="contact-list">
+          <div class="contact-item">
+            <div>
+              <div class="contact-label">Email</div>
+              <div class="contact-desc">Risposta diretta dello sviluppatore</div>
+            </div>
+            <a href="mailto:leonardo.rossi1922005@gmail.com">leonardo.rossi1922005@gmail.com</a>
+          </div>
+          <div class="contact-item">
+            <div>
+              <div class="contact-label">GitHub Issues</div>
+              <div class="contact-desc">Segnalazione bug e richieste funzionalità</div>
+            </div>
+            <a href="https://github.com/leorossi2005/Unio/issues" target="_blank" rel="noopener noreferrer">github.com/leorossi2005/Unio/issues</a>
+          </div>
+          <div class="contact-item">
+            <div>
+              <div class="contact-label">Feedback in-app</div>
+              <div class="contact-desc">Dall'app: Impostazioni &rarr; Invia un Feedback (puoi anche allegare uno screenshot)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Domande frequenti</h2>
+
+        <h3>Come cambio corso, anno accademico o gruppo matricola?</h3>
+        <p class="muted">
+          Apri le <strong>Impostazioni</strong> dall'icona dell'ingranaggio in alto a destra: puoi aggiornare in qualsiasi momento anno accademico, corso di laurea, anno di corso e matricola (pari/dispari).
+        </p>
+
+        <h3>Gli orari o le aule non si aggiornano</h3>
+        <p class="muted">
+          Unio scarica automaticamente gli orari aggiornati all'avvio e quando riapri l'app. Se il server dell'università è temporaneamente non raggiungibile, l'app mostra un avviso in alto e continua a mostrarti gli ultimi dati salvati in cache locale.
+        </p>
+
+        <h3>Come elimino tutti i dati salvati?</h3>
+        <p class="muted">
+          Tutti i tuoi dati (preferenze, impegni personali, notifiche e cache) restano solo sul dispositivo. Puoi azzerare tutto da <strong>Impostazioni &rarr; Resetta l'app</strong> oppure disinstallando l'app.
+        </p>
+
+        <h3>Unio è l'app ufficiale dell'Università di Verona?</h3>
+        <p class="muted">
+          No, Unio è un progetto indipendente sviluppato da Leonardo Rossi per gli studenti e non è affiliata ufficialmente all'Università degli Studi di Verona.
+        </p>
+      </section>
+    </main>
+
+    <!-- ENGLISH -->
+    <main data-lang="en">
+      <section class="card">
+        <h2>Contact</h2>
+        <p>
+          For questions, bug reports, or feature suggestions, you can reach me directly via any of the channels below:
+        </p>
+        <div class="contact-list">
+          <div class="contact-item">
+            <div>
+              <div class="contact-label">Email</div>
+              <div class="contact-desc">Direct reply from the developer</div>
+            </div>
+            <a href="mailto:leonardo.rossi1922005@gmail.com">leonardo.rossi1922005@gmail.com</a>
+          </div>
+          <div class="contact-item">
+            <div>
+              <div class="contact-label">GitHub Issues</div>
+              <div class="contact-desc">Bug reports and feature requests</div>
+            </div>
+            <a href="https://github.com/leorossi2005/Unio/issues" target="_blank" rel="noopener noreferrer">github.com/leorossi2005/Unio/issues</a>
+          </div>
+          <div class="contact-item">
+            <div>
+              <div class="contact-label">In-App Feedback</div>
+              <div class="contact-desc">Inside Unio: Settings &rarr; Send Feedback (supports optional screenshot attachment)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>How do I change my degree course, academic year, or student ID group?</h3>
+        <p class="muted">
+          Open <strong>Settings</strong> using the gear button in the top-right corner to update your academic year, course, course year, and odd/even group at any time.
+        </p>
+
+        <h3>Schedules or classrooms are not updating</h3>
+        <p class="muted">
+          Unio automatically checks for updates on launch and when returning to the app. If the university servers are temporarily unreachable, Unio displays a status banner and keeps showing your locally cached timetable.
+        </p>
+
+        <h3>How do I delete all my data?</h3>
+        <p class="muted">
+          All preferences, personal commitments, reminders, and cache stay locally on your device. You can erase everything via <strong>Settings &rarr; Reset app</strong> or by uninstalling the app.
+        </p>
+
+        <h3>Is Unio an official University of Verona app?</h3>
+        <p class="muted">
+          No, Unio is an independent project developed by Leonardo Rossi for students and is not officially affiliated with the University of Verona.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      &copy; 2026 Leonardo Rossi &middot; Unio &middot;
+      <a href="./privacy.html">Privacy Policy</a>
+    </footer>
+  </div>
+
+  <script>
+    function setLang(lang) {
+      document.documentElement.lang = lang;
+      document.title = lang === 'it' ? 'Unio - Supporto' : 'Unio - Support';
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        el.classList.toggle('visible', el.getAttribute('data-lang') === lang);
+      });
+      document.getElementById('btn-it').classList.toggle('active', lang === 'it');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    }
+
+    const preferred = (navigator.language || 'it').toLowerCase().startsWith('it') ? 'it' : 'en';
+    setLang(preferred);
+  </script>
+</body>
+</html>

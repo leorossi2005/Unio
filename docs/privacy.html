@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Unio — Privacy Policy</title>
+  <title>Unio - Privacy Policy</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -149,6 +149,10 @@
       font-size: 0.85rem;
     }
 
+    footer a {
+      color: var(--muted);
+    }
+
     [data-lang] {
       display: none;
     }
@@ -156,13 +160,17 @@
     [data-lang].visible {
       display: block;
     }
+
+    span[data-lang].visible {
+      display: inline;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <div>
-        <h1>Unio — Privacy Policy</h1>
+        <h1>Unio - Privacy Policy</h1>
         <p class="subtitle" data-lang="it">Ultimo aggiornamento: 22 novembre 2026</p>
         <p class="subtitle" data-lang="en">Last updated: November 22, 2026</p>
       </div>
@@ -309,7 +317,8 @@
     </main>
 
     <footer>
-      &copy; 2026 Leonardo Rossi — Unio
+      &copy; 2026 Leonardo Rossi &middot; Unio &middot;
+      <a href="./support.html"><span data-lang="it">Supporto</span><span data-lang="en">Support</span></a>
     </footer>
   </div>
 
