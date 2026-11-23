@@ -31,8 +31,6 @@ struct WelcomeOnboardingPage: View {
     @State private var showSubtitle: Bool
     @State private var showButton: Bool
     
-    @State private var zStackCenter: CGPoint = .zero
-    
     private let initialSize: CGFloat = 200
     
     init(
@@ -76,14 +74,6 @@ struct WelcomeOnboardingPage: View {
             ?? UIScreen.main.bounds
     }
     
-    private var initialOffset: CGSize {
-        guard isActive, !isExpanded, zStackCenter != .zero else { return .zero }
-        return CGSize(
-            width: windowBounds.midX - zStackCenter.x,
-            height: windowBounds.midY - zStackCenter.y
-        )
-    }
-    
     private var styledSubtitle: AttributedString {
         var attributed = AttributedString(localized: subtitle)
         attributed.foregroundColor = Color.secondary
@@ -103,16 +93,26 @@ struct WelcomeOnboardingPage: View {
             let maxDimension = min(proxy.size.width - 32, proxy.size.height * 0.52, 440)
             let targetSize = max(maxDimension, 200)
             let currentSize = isExpanded ? targetSize : initialSize
-            let currentOffset = isExpanded
-                ? CGSize(width: 0, height: proxy.size.height < 600 ? -24 : -40)
-                : initialOffset
             
             VStack(spacing: 12) {
                 Spacer()
                 
                 ZStack {
-                    iconView(size: currentSize)
-                        .offset(currentOffset)
+                    GeometryReader { iconProxy in
+                        let frame = iconProxy.frame(in: .global)
+                        let currentOffset = isExpanded
+                            ? CGSize(width: 0, height: proxy.size.height < 600 ? -24 : -40)
+                            : (isActive
+                                ? CGSize(
+                                    width: windowBounds.midX - frame.midX,
+                                    height: windowBounds.midY - frame.midY
+                                )
+                                : .zero)
+                        
+                        iconView(size: currentSize)
+                            .offset(currentOffset)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
                     
                     ScrollView {
                         ZStack {
@@ -144,15 +144,6 @@ struct WelcomeOnboardingPage: View {
                     .accessibilityElement(children: .combine)
                 }
                 .frame(maxWidth: .infinity)
-                .background {
-                    Color.clear
-                        .onGeometryChange(for: CGPoint.self) { proxy in
-                            let frame = proxy.frame(in: .global)
-                            return CGPoint(x: frame.midX, y: frame.midY)
-                        } action: { center in
-                            zStackCenter = center
-                        }
-                }
                 
                 Spacer()
                 
