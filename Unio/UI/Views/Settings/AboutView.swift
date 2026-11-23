@@ -16,25 +16,33 @@ struct AboutView: View {
     var body: some View {
         List {
             Section {
-                VStack(spacing: 15) {
-                    Image(decorative: "InternalIcon")
-                        .resizable()
-                        .frame(width: Self.iconSize, height: Self.iconSize)
-                        .accessibilityIgnoresInvertColors(true)
-                    
-                    VStack(spacing: 5) {
-                        Text(AppConstants.AppInfo.appName)
-                            .font(.title2.bold())
+                VStack(spacing: 24) {
+                    VStack(spacing: 16) {
+                        Image(decorative: "InternalIcon")
+                            .resizable()
+                            .frame(width: Self.iconSize, height: Self.iconSize)
+                            .accessibilityIgnoresInvertColors(true)
                         
-                        Text(Bundle.main.appVersion)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .accessibilityLabel("Versione applicazione")
-                            .accessibilityValue("\(Bundle.main.clearAppVersion), build numero \(Bundle.main.clearBuildNumber)")
+                        VStack(spacing: 5) {
+                            Text(AppConstants.AppInfo.appName)
+                                .font(.title2.bold())
+                            
+                            Text(Bundle.main.appVersion)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .accessibilityLabel("Versione applicazione")
+                                .accessibilityValue("\(Bundle.main.clearAppVersion), build numero \(Bundle.main.clearBuildNumber)")
+                        }
                     }
+                    
+                    Link(destination: AppConstants.URLs.privacyPolicy) {
+                        Label("Informativa sulla privacy", systemImage: "hand.raised.fill")
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(12)
+                    .background(Color(.secondarySystemGroupedBackground), in: .capsule)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical)
             }
             .listRowBackground(Color.clear)
             

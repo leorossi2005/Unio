@@ -16,6 +16,7 @@ public enum AppConstants: Sendable {
         public static let github = URL(string: "https://github.com/leorossi2005")!
         public static let instagram = URL(string: "https://www.instagram.com/leorossi05")!
         public static let email = URL(string: "mailto:leonardo.rossi1922005@gmail.com")!
+        public static let privacyPolicy = URL(string: "https://leorossi2005.github.io/Unio/privacy.html")!
     }
     
     public enum AppInfo {

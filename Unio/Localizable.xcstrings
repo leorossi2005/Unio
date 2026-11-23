@@ -1346,6 +1346,16 @@
         }
       }
     },
+    "Informativa sulla privacy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        }
+      }
+    },
     "Informazioni" : {
       "localizations" : {
         "en" : {
