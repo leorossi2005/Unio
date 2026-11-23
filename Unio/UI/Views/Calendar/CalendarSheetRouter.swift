@@ -37,47 +37,7 @@ class CalendarSheetRouter {
     }
     
     // MARK: - Azioni di navigazione
-    func routeToSettings() {
-        openSettings = true
-        detents = [.small, .medium, .large]
-        manager.setDetent(.large)
-    }
-    
-    func routeToWhatsNew() {
-        openWhatsNew = true
-        detents = [.small, .medium, .large]
-        manager.setDetent(.large)
-    }
-    
-    func routeToAppNotices(_ notices: [AppNotice]) {
-        openAppNotices = notices
-        detents = [.small, .medium, .large]
-        manager.setDetent(.large)
-    }
-    
-    func routeToItem(_ item: CalendarItem, addToCalendar: Bool = false) {
-        openAppNotices = nil
-        selectedItem = item
-        openAddToCalendar = addToCalendar
-        detents = [.small, .medium, .large]
-        manager.setDetent(.large)
-    }
-    
-    func routeToRoom(_ room: Room) {
-        selectedRoom = room
-        detents = [.small, .medium, .large]
-        manager.setDetent(.large)
-    }
-    
-    func routeToAddPersonalEvent(editing event: PersonalEvent? = nil) {
-        editingPersonalEvent = event
-        openAddPersonalEvent = true
-        detents = [.small, .medium, .large]
-        manager.setDetent(.large)
-    }
-    
-    // MARK: - Reset automatico
-    func resetToCalendar() {
+    private func clearRoutes() {
         selectedItem = nil
         selectedRoom = nil
         openSettings = false
@@ -86,6 +46,57 @@ class CalendarSheetRouter {
         openAddToCalendar = false
         openAddPersonalEvent = false
         editingPersonalEvent = nil
+    }
+    
+    func routeToSettings() {
+        clearRoutes()
+        openSettings = true
+        detents = [.small, .medium, .large]
+        manager.setDetent(.large)
+    }
+    
+    func routeToWhatsNew() {
+        clearRoutes()
+        openWhatsNew = true
+        detents = [.small, .medium, .large]
+        manager.setDetent(.large)
+    }
+    
+    func routeToAppNotices(_ notices: [AppNotice]) {
+        clearRoutes()
+        openAppNotices = notices
+        detents = [.small, .medium, .large]
+        manager.setDetent(.large)
+    }
+    
+    func routeToItem(_ item: CalendarItem, addToCalendar: Bool = false) {
+        clearRoutes()
+        selectedItem = item
+        openAddToCalendar = addToCalendar
+        detents = [.small, .medium, .large]
+        manager.setDetent(.large)
+    }
+    
+    func routeToRoom(_ room: Room) {
+        clearRoutes()
+        selectedRoom = room
+        detents = [.small, .medium, .large]
+        manager.setDetent(.large)
+    }
+    
+    func routeToAddPersonalEvent(editing event: PersonalEvent? = nil) {
+        let preservedItem = event != nil ? selectedItem : nil
+        clearRoutes()
+        selectedItem = preservedItem
+        editingPersonalEvent = event
+        openAddPersonalEvent = true
+        detents = [.small, .medium, .large]
+        manager.setDetent(.large)
+    }
+    
+    // MARK: - Reset automatico
+    func resetToCalendar() {
+        clearRoutes()
         detents = [.small, .medium]
     }
 }

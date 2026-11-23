@@ -60,6 +60,11 @@ private struct SheetContentTopKey: PreferenceKey {
     }
 }
 
+@MainActor
+private final class DetentSuppressionBox {
+    var target: CustomSheetDetent? = nil
+}
+
 struct CustomSheet<Content: View>: View {
     @Binding var isPresented: Bool
     var detents: [CustomSheetDetent]
@@ -93,7 +98,7 @@ struct CustomSheet<Content: View>: View {
     @State private var divisionLayout = HingeDivisionLayout()
     @State private var canAnimateHingeTransition: Bool = false
     @State private var isHorizontalContainer: Bool = false
-    @State private var suppressedDetentTarget: CustomSheetDetent? = nil
+    @State private var suppressedDetent = DetentSuppressionBox()
     @State private var glassRef = GlassContainerRef()
     
     private var activeContainerWidth: CGFloat {
@@ -520,11 +525,11 @@ struct CustomSheet<Content: View>: View {
             if oldValue != .large && !effectiveDetents.contains(.large) {
                 isTrackingLargeShrink = false
             }
-            if suppressedDetentTarget == newValue {
-                suppressedDetentTarget = nil
+            if suppressedDetent.target == newValue {
+                suppressedDetent.target = nil
                 return
             }
-            suppressedDetentTarget = nil
+            suppressedDetent.target = nil
             enableBackground = newValue == .large
             resyncLargeReference()
             let atMax = newValue == .large
@@ -558,7 +563,8 @@ struct CustomSheet<Content: View>: View {
             if newDetents.contains(.large) {
                 isTrackingLargeShrink = false
             } else if oldDetents.contains(.large) && !manager.isDragging &&
-                        (manager.selectedDetent == .large || manager.previousDetent == .large || isAtMax) {
+                        (manager.selectedDetent == .large || manager.previousDetent == .large || isAtMax) &&
+                        manager.liveMetrics.currentHeight > CustomSheetDetent.medium.value(fold: fold) + 0.5 {
                 isTrackingLargeShrink = true
             }
             if !manager.locked {
@@ -881,7 +887,7 @@ struct CustomSheet<Content: View>: View {
         manager.isDragging = false
         manager.onDragToggle?(false)
         if manager.selectedDetent != target {
-            suppressedDetentTarget = target
+            suppressedDetent.target = target
         }
         manager.setDetent(target)
         

@@ -479,7 +479,7 @@ struct CalendarView: View {
             let shouldDeferReset = (oldValue == .large) && !didTriggerSettingsReload
             if shouldDeferReset {
                 deferredResetTask = Task { @MainActor in
-                    try? await Task.sleep(for: .seconds(0.25))
+                    try? await Task.sleep(for: .seconds(0.5))
                     guard !Task.isCancelled, sheetRouter.manager.selectedDetent != .large else { return }
                     sheetRouter.resetToCalendar()
                 }
